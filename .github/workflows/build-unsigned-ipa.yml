@@ -1,3 +1,4 @@
+
 name: Build unsigned iOS IPA
 
 on:
@@ -11,7 +12,7 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v4
 
-      - name: Show available Xcode projects and schemes
+      - name: Show available Xcode targets
         run: |
           xcodebuild -version
           xcodebuild -list -project SocksBypass.xcodeproj
@@ -20,7 +21,7 @@ jobs:
         run: |
           xcodebuild \
             -project SocksBypass.xcodeproj \
-            -scheme SocksBypass \
+            -target SocksBypass \
             -configuration Release \
             -sdk iphoneos \
             -derivedDataPath "$PWD/build" \
@@ -40,7 +41,6 @@ jobs:
 
           mkdir -p "$PWD/Payload"
           cp -R "$APP_PATH" "$PWD/Payload/"
-          cd "$PWD"
           zip -r SocksBypass-unsigned.ipa Payload
 
       - name: Upload IPA
@@ -48,3 +48,4 @@ jobs:
         with:
           name: SocksBypass-unsigned
           path: SocksBypass-unsigned.ipa
+
