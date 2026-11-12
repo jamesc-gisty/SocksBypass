@@ -1,0 +1,50 @@
+name: Build unsigned iOS IPA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Show available Xcode projects and schemes
+        run: |
+          xcodebuild -version
+          xcodebuild -list -project SocksBypass.xcodeproj
+
+      - name: Build without code signing
+        run: |
+          xcodebuild \
+            -project SocksBypass.xcodeproj \
+            -scheme SocksBypass \
+            -configuration Release \
+            -sdk iphoneos \
+            -derivedDataPath "$PWD/build" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY=""
+
+      - name: Package IPA
+        run: |
+          APP_PATH=$(find "$PWD/build/Build/Products/Release-iphoneos" \
+            -maxdepth 1 -type d -name "*.app" -print -quit)
+
+          if [ -z "$APP_PATH" ]; then
+            echo "No .app bundle was produced"
+            exit 1
+          fi
+
+          mkdir -p "$PWD/Payload"
+          cp -R "$APP_PATH" "$PWD/Payload/"
+          cd "$PWD"
+          zip -r SocksBypass-unsigned.ipa Payload
+
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: SocksBypass-unsigned
+          path: SocksBypass-unsigned.ipa
