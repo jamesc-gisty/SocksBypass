@@ -17,6 +17,7 @@ jobs:
           xcodebuild -version
           xcodebuild -list -project SocksBypass.xcodeproj
 
+      
       - name: Build without code signing
         run: |
           xcodebuild \
@@ -24,10 +25,12 @@ jobs:
             -target SocksBypass \
             -configuration Release \
             -sdk iphoneos \
-            -derivedDataPath "$PWD/build" \
+            SYMROOT="$PWD/build" \
             CODE_SIGNING_ALLOWED=NO \
             CODE_SIGNING_REQUIRED=NO \
-            CODE_SIGN_IDENTITY=""
+            CODE_SIGN_IDENTITY="" \
+            build
+
 
       - name: Package IPA
         run: |
