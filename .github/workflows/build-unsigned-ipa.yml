@@ -32,19 +32,27 @@ jobs:
             build
 
 
+      
       - name: Package IPA
         run: |
-          APP_PATH=$(find "$PWD/build/Build/Products/Release-iphoneos" \
-            -maxdepth 1 -type d -name "*.app" -print -quit)
+          echo "Searching for compiled iPhone app..."
+
+          APP_PATH=$(find "$PWD/build" \
+            -type d -name "*.app" -print -quit)
 
           if [ -z "$APP_PATH" ]; then
-            echo "No .app bundle was produced"
+            echo "ERROR: No compiled .app found"
+            find "$PWD/build" -maxdepth 4 -type d
             exit 1
           fi
 
+          echo "Found app: $APP_PATH"
+
           mkdir -p "$PWD/Payload"
           cp -R "$APP_PATH" "$PWD/Payload/"
+
           zip -r SocksBypass-unsigned.ipa Payload
+
 
       - name: Upload IPA
         uses: actions/upload-artifact@v4
